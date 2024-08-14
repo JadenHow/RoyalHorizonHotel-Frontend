@@ -18,8 +18,7 @@ export const roomSlice = createSlice({
       state.rooms = action.payload;
       state.isLoading = false;
     },
-    fetchRoomsFailure: (state, action) => {
-      state.error = action.payload;
+    fetchRoomsFailure: (state) => {
       state.isLoading = false;
     },
     fetchRoomTypesRequest: (state) => {
@@ -29,8 +28,7 @@ export const roomSlice = createSlice({
       state.roomTypes = action.payload;
       state.isLoading = false;
     },
-    fetchRoomTypesFailure: (state, action) => {
-      state.error = action.payload;
+    fetchRoomTypesFailure: (state) => {
       state.isLoading = false;
     },
     createRoomRequest: (state) => {
@@ -38,6 +36,7 @@ export const roomSlice = createSlice({
     },
     createRoomSuccess: (state, action) => {
       state.rooms.push(action.payload);
+      state.error = false;
       state.isLoading = false;
     },
     createRoomFailure: (state, action) => {
@@ -52,6 +51,7 @@ export const roomSlice = createSlice({
       if (index !== -1) {
         state.rooms[index] = action.payload;
       }
+      state.error = false;
       state.isLoading = false;
     },
     updateRoomFailure: (state, action) => {
@@ -63,6 +63,7 @@ export const roomSlice = createSlice({
     },
     deleteRoomSuccess: (state, action) => {
       state.rooms = state.rooms.filter(room => room.id !== action.payload);
+      state.error = false;
       state.isLoading = false;
     },
     deleteRoomFailure: (state, action) => {
@@ -74,6 +75,7 @@ export const roomSlice = createSlice({
     },
     fetchRoomByIdSuccess: (state, action) => {
       state.currentRoom = action.payload;
+      state.error = false;
       state.isLoading = false;
     },
     fetchRoomByIdFailure: (state, action) => {
@@ -87,9 +89,11 @@ export const roomSlice = createSlice({
       state.availableRooms = action.payload;
       state.isLoading = false;
     },
-    fetchAvailableRoomsFailure: (state, action) => {
-      state.error = action.payload;
+    fetchAvailableRoomsFailure: (state) => {
       state.isLoading = false;
+    },
+    clearError: (state) => {
+      state.error = null;
     }
   }
 });
@@ -115,7 +119,8 @@ export const {
   fetchRoomByIdFailure,
   fetchAvailableRoomsRequest,
   fetchAvailableRoomsSuccess,
-  fetchAvailableRoomsFailure
+  fetchAvailableRoomsFailure,
+  clearError
 } = roomSlice.actions;
 
 export default roomSlice.reducer;

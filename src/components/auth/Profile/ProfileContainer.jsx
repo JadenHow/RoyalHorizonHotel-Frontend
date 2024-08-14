@@ -6,16 +6,22 @@ import BookingHooks from 'hooks/BookingHooks';
 const ProfileContainer = () => {
   const fetchBookingsByUserId = BookingHooks.useFetchBookingsByUserId();
   const bookingsByUserId = BookingHooks.useBookingsByUserId();
-  const fetchUsers = UserHooks.useFetchUsers();
-  const users = UserHooks.useUsers();
+  const fetchUserById = UserHooks.useFetchUserById();
+  const userById = UserHooks.useUserById();
   const deleteUser = UserHooks.useDeleteUser();
+  const { isLoading: bookingIsLoading, error: bookingError } = BookingHooks.useBooking();
+  const { isLoading: userIsLoading, error: userError } = UserHooks.useUser();
 
   const allProps = {
     fetchBookingsByUserId,
     bookingsByUserId,
-    fetchUsers,
-    users,
-    deleteUser
+    fetchUserById,
+    userById,
+    deleteUser,
+    bookingIsLoading,
+    bookingError,
+    userIsLoading,
+    userError
   };
 
   return (

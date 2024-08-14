@@ -68,7 +68,8 @@ function* workFetchBookingByConfirmationCode(action) {
 
 function* workFetchBookingsByUserId(action) {
   try {
-    const response = yield call(fetch, `http://localhost:8080/api/bookings/user/${action.payload}`);
+    const { id } = action.payload;
+    const response = yield call(fetch, `http://localhost:8080/api/bookings/user/${id}`);
     if (response.ok) {
       const bookings = yield response.json();
       yield put(fetchBookingsByUserIdSuccess(bookings));

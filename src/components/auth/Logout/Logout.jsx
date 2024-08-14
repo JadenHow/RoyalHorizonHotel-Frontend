@@ -1,18 +1,18 @@
-import React, { useContext } from 'react';
-import { AuthContext } from '../AuthProvider/AuthProvider';
+import React from 'react';
+import { useAuth } from 'contexts/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Logout = () => {
-  const auth = useContext(AuthContext);
+  const { onLogout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    auth.handleLogout();
-    navigate('/', { state: { message: ' You have been logged out!' } });
+    onLogout();
+    navigate('/');
   };
 
   return (
-    <>
+    <React.Fragment>
       <li>
         <Link className="dropdown-item" to={'/profile'}>
           Profile
@@ -24,7 +24,7 @@ const Logout = () => {
       <button className="dropdown-item" onClick={handleLogout}>
         Logout
       </button>
-    </>
+    </React.Fragment>
   );
 };
 

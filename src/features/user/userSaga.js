@@ -2,8 +2,8 @@ import { call, put, takeEvery } from 'redux-saga/effects';
 import {
   fetchUsersFailure,
   fetchUsersSuccess,
-  fetchUserByEmailFailure,
-  fetchUserByEmailSuccess,
+  fetchUserByIdFailure,
+  fetchUserByIdSuccess,
   deleteUserFailure,
   deleteUserSuccess
 } from './userSlice';
@@ -27,31 +27,34 @@ function* workFetchUsers(action) {
   }
 }
 
-function* workFetchUserByEmail(action) {
+function* workFetchUserById(action) {
   try {
-    const response = yield call(fetch, `http://localhost:8080/api/users/${action.payload.email}`, {
+    const { id, token } = action.payload;
+    const response = yield call(fetch, `http://localhost:8080/api/users/email/${id}`, {
       headers: {
-        Authorization: `Bearer ${action.payload.token}`
+        Authorization: `Bearer ${token}`
       }
     });
     if (response.ok) {
       const user = yield response.json();
-      yield put(fetchUserByEmailSuccess(user));
+      yield put(fetchUserByIdSuccess(user));
     } else {
-      yield put(fetchUserByEmailFailure());
+      yield put(fetchUserByIdFailure());
     }
   } catch (error) {
     console.error('Error fetching user by email:', error);
-    yield put(fetchUserByEmailFailure());
+    yield put(fetchUserByIdFailure());
   }
 }
 
 function* workDeleteUser(action) {
   try {
-    const response = yield call(fetch, `http://localhost:8080/api/users/${action.payload.userId}`, {
+    const { id, token } = action.payload;
+
+    const response = yield call(fetch, `http://localhost:8080/api/users/${id}`, {
       method: 'DELETE',
       headers: {
-        Authorization: `Bearer ${action.payload.token}`
+        Authorization: `Bearer ${token}`
       }
     });
     if (response.ok) {
@@ -68,7 +71,7 @@ function* workDeleteUser(action) {
 
 function* userSaga() {
   yield takeEvery('users/fetchUsersRequest', workFetchUsers);
-  yield takeEvery('users/fetchUserByEmailRequest', workFetchUserByEmail);
+  yield takeEvery('users/fetchUserByIdRequest', workFetchUserById);
   yield takeEvery('users/deleteUserRequest', workDeleteUser);
 }
 

@@ -1,3 +1,4 @@
+import useRoom from './useRoom';
 import useCreateRoom from './useCreateRoom';
 import useUpdateRoom from './useUpdateRoom';
 import useDeleteRoom from './useDeleteRoom';
@@ -11,6 +12,7 @@ import useRoomTypes from './useRoomTypes';
 import useAvailableRooms from './useAvailableRooms';
 
 export const RoomHooks = {
+  useRoom,
   useCreateRoom,
   useUpdateRoom,
   useDeleteRoom,

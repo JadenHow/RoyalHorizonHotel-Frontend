@@ -6,7 +6,7 @@ export default function useFetchAvailableRooms() {
   const dispatch = useDispatch();
 
   const fetchAvailableRooms = useCallback(
-    (checkInDate, checkOutDate, roomType) => {
+    ({ checkInDate, checkOutDate, roomType }) => {
       dispatch(fetchAvailableRoomsRequest({ checkInDate, checkOutDate, roomType }));
     },
     [dispatch]

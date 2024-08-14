@@ -6,8 +6,8 @@ export default function useCreateRoom() {
   const dispatch = useDispatch();
 
   const createRoom = useCallback(
-    (room) => {
-      dispatch(createRoomRequest(room));
+    ({ image, roomType, roomPrice }) => {
+      dispatch(createRoomRequest({ image, roomType, roomPrice }));
     },
     [dispatch]
   );

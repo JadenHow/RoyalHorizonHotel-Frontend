@@ -1,3 +1,4 @@
+import useBooking from './useBooking';
 import useFetchBookings from './useFetchBookings';
 import useFetchBookingByConfirmationCode from './useFetchBookingByConfirmationCode';
 import useFetchBookingsByUserId from './useFetchBookingsByUserId';
@@ -8,6 +9,7 @@ import useBookingByConfirmationCode from './useBookingByConfirmationCode';
 import useBookingsByUserId from './useBookingsByUserId';
 
 export const BookingHooks = {
+  useBooking,
   useFetchBookings,
   useFetchBookingByConfirmationCode,
   useFetchBookingsByUserId,

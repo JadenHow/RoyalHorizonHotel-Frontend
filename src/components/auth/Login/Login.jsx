@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
-import { useAuth } from 'contexts/AuthContext'; // Assuming this provides necessary auth context
+import { useAuth } from 'contexts/AuthContext';
+import { Button, Container, Form } from 'react-bootstrap';
 
 const Login = ({ onLogin }) => {
   const [errorMessage, setErrorMessage] = useState('');
@@ -38,52 +39,42 @@ const Login = ({ onLogin }) => {
   }
 
   return (
-    <section className="container col-6 mt-5 mb-5">
-      {errorMessage && <p className="alert alert-danger">{errorMessage}</p>}
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="row mb-3">
-          <label htmlFor="email" className="col-sm-2 col-form-label">
-            Email
-          </label>
-          <div>
-            <input
-              id="email"
+    <Container>
+      <div style={{ padding: '2rem' }}>
+        {errorMessage && <p className="alert alert-danger">{errorMessage}</p>}
+        <h1>Login</h1>
+        <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3">
+            <Form.Label>Email</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="email"
               name="email"
-              type="email"
-              className="form-control"
               value={login.email}
               onChange={handleInputChange}
             />
-          </div>
-        </div>
+          </Form.Group>
 
-        <div className="row mb-3">
-          <label htmlFor="password" className="col-sm-2 col-form-label">
-            Password
-          </label>
-          <div>
-            <input
-              id="password"
-              name="password"
+          <Form.Group className="mb-3">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
               type="password"
-              className="form-control"
+              placeholder="password"
+              name="password"
               value={login.password}
               onChange={handleInputChange}
             />
-          </div>
-        </div>
+          </Form.Group>
 
-        <div className="mb-3">
-          <button type="submit" className="btn btn-hotel" style={{ marginRight: '0.75rem' }}>
+          <Button type="submit">
             Login
-          </button>
+          </Button>
           <span style={{ marginLeft: '0.75rem' }}>
             Don&apos;t have an account yet? <Link to={'/register'}>Register</Link>
           </span>
-        </div>
-      </form>
-    </section>
+        </Form>
+      </div>
+    </Container>
   );
 };
 

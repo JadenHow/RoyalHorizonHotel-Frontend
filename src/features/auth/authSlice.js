@@ -7,30 +7,37 @@ export const loginSlice = createSlice({
     userId: null,
     userRole: null,
     token: null,
-    isLoading: false
+    isLoading: false,
+    error: null
   },
   reducers: {
     postLoginRequest: (state) => {
       state.isLoading = true;
+      state.error = false;
     },
     postLoginSuccess: (state, action) => {
       const decodedUser = jwtDecode(action.payload);
       state.userId = decodedUser.sub;
-      state.userRole = decodedUser.roles;
+      state.userRole = decodedUser.role;
       state.token = action.payload;
       state.isLoading = false;
+      state.error = false;
     },
-    postLoginFailure: (state) => {
+    postLoginFailure: (state, action) => {
       state.isLoading = false;
+      state.error = action.payload;
     },
     postRegisterRequest: (state) => {
       state.isLoading = true;
+      state.error = false;
     },
-    postRegisterSuccess: (state, action) => {
+    postRegisterSuccess: (state) => {
       state.isLoading = false;
+      state.error = false;
     },
-    postRegisterFailure: (state) => {
+    postRegisterFailure: (state, action) => {
       state.isLoading = false;
+      state.error = action.payload;
     }
   }
 });

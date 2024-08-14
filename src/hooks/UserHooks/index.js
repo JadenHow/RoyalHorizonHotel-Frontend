@@ -1,15 +1,17 @@
+import useUser from './useUser';
 import useFetchUsers from './useFetchUsers';
-import useFetchUserByEmail from './useFetchUserByEmail';
+import useFetchUserById from './useFetchUserById';
 import useDeleteUser from './useDeleteUser';
 import useUsers from './useUsers';
-import useUserByEmail from './useUserByEmail';
+import useUserById from './useUserById';
 
 export const UserHooks = {
+  useUser,
   useFetchUsers,
-  useFetchUserByEmail,
+  useFetchUserById,
   useDeleteUser,
   useUsers,
-  useUserByEmail
+  useUserById
 };
 
 export default UserHooks;

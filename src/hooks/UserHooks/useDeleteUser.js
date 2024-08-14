@@ -6,7 +6,7 @@ export default function useDeleteUser() {
   const dispatch = useDispatch();
 
   const deleteUser = useCallback(
-    (userId, token) => {
+    ({ userId, token }) => {
       dispatch(deleteUserRequest({ userId, token }));
     },
     [dispatch]

@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
+import { Alert, Button, Card, Col, Container, Image, Row, Table } from 'react-bootstrap';
 
-const Profile = ({ fetchBookingsByUserId, bookingsByUserId, fetchUsers, users, deleteUser }) => {
+const Profile = ({ fetchBookingsByUserId, bookingsByUserId, fetchUserById, userById, deleteUser, bookingIsLoading, bookingError, userIsLoading, userError }) => {
   const [user, setUser] = useState({
     id: '',
     email: '',
     firstName: '',
     lastName: '',
-    roles: [{ id: '', name: '' }]
+    roles: ''
   });
 
   const [bookings, setBookings] = useState([
@@ -25,35 +26,28 @@ const Profile = ({ fetchBookingsByUserId, bookingsByUserId, fetchUsers, users, d
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
-  const userId = localStorage.getItem('userId');
+  const id = localStorage.getItem('userId');
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        await fetchUsers(userId, token);
-        setUser(users);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchUser();
-  }, [userId]);
+    fetchUserById({ id, token });
+  }, [id]);
 
   useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        await fetchBookingsByUserId(userId, token);
-        setBookings(bookingsByUserId);
-      } catch (error) {
-        console.error('Error fetching bookings:', error.message);
-        setErrorMessage(error.message);
-      }
-    };
+    if (!userIsLoading) {
+      setUser(userById);
+    }
+  }, [userById]);
 
-    fetchBookings();
-  }, [userId]);
+  useEffect(() => {
+    fetchBookingsByUserId({ id, token });
+  }, [id]);
+
+  useEffect(() => {
+    if (!bookingIsLoading) {
+      setBookings(bookingsByUserId);
+    }
+  }, [bookingsByUserId]);
 
   const handleDeleteAccount = async () => {
     const confirmed = window.confirm(
@@ -61,7 +55,7 @@ const Profile = ({ fetchBookingsByUserId, bookingsByUserId, fetchUsers, users, d
     );
 
     if (confirmed) {
-      await deleteUser(userId)
+      await deleteUser(id)
         .then((response) => {
           setMessage(response.data);
           localStorage.removeItem('token');
@@ -76,136 +70,104 @@ const Profile = ({ fetchBookingsByUserId, bookingsByUserId, fetchUsers, users, d
     }
   };
 
+  if (bookingIsLoading || userIsLoading) return <div>Loading...</div>;
   return (
-    <div className="container">
-      {errorMessage && <p className="text-danger">{errorMessage}</p>}
-      {message && <p className="text-danger">{message}</p>}
+    <Container>
+      {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
+      {message && <Alert variant="danger">{message}</Alert>}
+
       {user
         ? (
-          <div className="card p-5 mt-5" style={{ backgroundColor: 'whitesmoke' }}>
-            <h4 className="card-title text-center">User Information</h4>
-            <div className="card-body">
-              <div className="col-md-10 mx-auto">
-                <div className="card mb-3 shadow">
-                  <div className="row g-0">
-                    <div className="col-md-2">
-                      <div className="d-flex justify-content-center align-items-center mb-4">
-                        <img
-                          src="https://themindfulaimanifesto.org/wp-content/uploads/2020/09/male-placeholder-image.jpeg"
-                          alt="Profile"
-                          className="rounded-circle"
-                          style={{ width: '150px', height: '150px', objectFit: 'cover' }}
-                        />
-                      </div>
-                    </div>
+          <Card className="p-5 mt-5" bg="light">
+            <Card.Title as="h4" className="text-center">User Information</Card.Title>
+            <Card.Body>
+              <Row className="justify-content-center mb-4">
+                <Col md={2} className="d-flex justify-content-center align-items-center">
+                  <Image
+                    src="https://themindfulaimanifesto.org/wp-content/uploads/2020/09/male-placeholder-image.jpeg"
+                    alt="Profile"
+                    roundedCircle
+                    style={{ width: '150px', height: '150px', objectFit: 'cover' }}
+                  />
+                </Col>
+              </Row>
+              <Row className="mb-3">
+                <Col md={2} className="fw-bold">ID:</Col>
+                <Col md={10}>{user.id}</Col>
+              </Row>
+              <hr />
 
-                    <div className="col-md-10">
-                      <div className="card-body">
-                        <div className="form-group row">
-                          <label className="col-md-2 col-form-label fw-bold">ID:</label>
-                          <div className="col-md-10">
-                            <p className="card-text">{user.id}</p>
-                          </div>
-                        </div>
-                        <hr />
+              <Row className="mb-3">
+                <Col md={2} className="fw-bold">First Name:</Col>
+                <Col md={10}>{user.firstName}</Col>
+              </Row>
+              <hr />
 
-                        <div className="form-group row">
-                          <label className="col-md-2 col-form-label fw-bold">First Name:</label>
-                          <div className="col-md-10">
-                            <p className="card-text">{user.firstName}</p>
-                          </div>
-                        </div>
-                        <hr />
+              <Row className="mb-3">
+                <Col md={2} className="fw-bold">Last Name:</Col>
+                <Col md={10}>{user.lastName}</Col>
+              </Row>
+              <hr />
 
-                        <div className="form-group row">
-                          <label className="col-md-2 col-form-label fw-bold">Last Name:</label>
-                          <div className="col-md-10">
-                            <p className="card-text">{user.lastName}</p>
-                          </div>
-                        </div>
-                        <hr />
+              <Row className="mb-3">
+                <Col md={2} className="fw-bold">Email:</Col>
+                <Col md={10}>{user.email}</Col>
+              </Row>
+              <hr />
 
-                        <div className="form-group row">
-                          <label className="col-md-2 col-form-label fw-bold">Email:</label>
-                          <div className="col-md-10">
-                            <p className="card-text">{user.email}</p>
-                          </div>
-                        </div>
-                        <hr />
+              <Row className="mb-3">
+                <Col md={2} className="fw-bold">Role:</Col>
+                <Col md={10}>{user.role}</Col>
+              </Row>
+              <hr />
 
-                        <div className="form-group row">
-                          <label className="col-md-2 col-form-label fw-bold">Roles:</label>
-                          <div className="col-md-10">
-                            <ul className="list-unstyled">
-                              {user.roles.map((role) => (
-                                <li key={role.id} className="card-text">
-                                  {role.name}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <Card.Title as="h4" className="text-center">Booking History</Card.Title>
 
-                <h4 className="card-title text-center">Booking History</h4>
-
-                {bookings.length > 0
-                  ? (
-                    <table className="table table-bordered table-hover shadow">
-                      <thead>
-                        <tr>
-                          <th scope="col">Booking ID</th>
-                          <th scope="col">Room ID</th>
-                          <th scope="col">Room Type</th>
-                          <th scope="col">Check In Date</th>
-                          <th scope="col">Check Out Date</th>
-                          <th scope="col">Confirmation Code</th>
-                          <th scope="col">Status</th>
+              {bookings.length > 0
+                ? (
+                  <Table bordered hover className="shadow">
+                    <thead>
+                      <tr>
+                        <th>Booking ID</th>
+                        <th>Room ID</th>
+                        <th>Room Type</th>
+                        <th>Check In Date</th>
+                        <th>Check Out Date</th>
+                        <th>Confirmation Code</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bookings.map((booking, index) => (
+                        <tr key={index}>
+                          <td>{booking.id}</td>
+                          <td>{booking.room.id}</td>
+                          <td>{booking.room.roomType}</td>
+                          <td>{moment(booking.checkInDate).subtract(1, 'month').format('MMM Do, YYYY')}</td>
+                          <td>{moment(booking.checkOutDate).subtract(1, 'month').format('MMM Do, YYYY')}</td>
+                          <td>{booking.bookingConfirmationCode}</td>
+                          <td className="text-success">On-going</td>
                         </tr>
-                      </thead>
-                      <tbody>
-                        {bookings.map((booking, index) => (
-                          <tr key={index}>
-                            <td>{booking.id}</td>
-                            <td>{booking.room.id}</td>
-                            <td>{booking.room.roomType}</td>
-                            <td>
-                              {moment(booking.checkInDate).subtract(1, 'month').format('MMM Do, YYYY')}
-                            </td>
-                            <td>
-                              {moment(booking.checkOutDate)
-                                .subtract(1, 'month')
-                                .format('MMM Do, YYYY')}
-                            </td>
-                            <td>{booking.bookingConfirmationCode}</td>
-                            <td className="text-success">On-going</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )
-                  : (
-                    <p>You have not made any bookings yet.</p>
-                  )}
+                      ))}
+                    </tbody>
+                  </Table>
+                )
+                : (
+                  <p>You have not made any bookings yet.</p>
+                )}
 
-                <div className="d-flex justify-content-center">
-                  <div className="mx-2">
-                    <button className="btn btn-danger btn-sm" onClick={handleDeleteAccount}>
-                        Close account
-                    </button>
-                  </div>
-                </div>
+              <div className="d-flex justify-content-center">
+                <Button variant="danger" size="sm" onClick={handleDeleteAccount}>
+                  Close account
+                </Button>
               </div>
-            </div>
-          </div>
+            </Card.Body>
+          </Card>
         )
         : (
           <p>Loading user data...</p>
         )}
-    </div>
+    </Container>
   );
 };
 

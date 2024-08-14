@@ -20,14 +20,14 @@ export const userSlice = createSlice({
       state.error = action.payload;
       state.isLoading = false;
     },
-    fetchUserByEmailRequest: (state) => {
+    fetchUserByIdRequest: (state) => {
       state.isLoading = true;
     },
-    fetchUserByEmailSuccess: (state, action) => {
+    fetchUserByIdSuccess: (state, action) => {
       state.currentUser = action.payload;
       state.isLoading = false;
     },
-    fetchUserByEmailFailure: (state, action) => {
+    fetchUserByIdFailure: (state, action) => {
       state.error = action.payload;
       state.isLoading = false;
     },
@@ -49,9 +49,9 @@ export const {
   fetchUsersRequest,
   fetchUsersSuccess,
   fetchUsersFailure,
-  fetchUserByEmailRequest,
-  fetchUserByEmailSuccess,
-  fetchUserByEmailFailure,
+  fetchUserByIdRequest,
+  fetchUserByIdSuccess,
+  fetchUserByIdFailure,
   deleteUserRequest,
   deleteUserSuccess,
   deleteUserFailure

@@ -6,7 +6,7 @@ export default function useUpdateRoom() {
   const dispatch = useDispatch();
 
   const updateRoom = useCallback(
-    (roomId, room) => {
+    ({ roomId, room }) => {
       dispatch(updateRoomRequest({ roomId, room }));
     },
     [dispatch]

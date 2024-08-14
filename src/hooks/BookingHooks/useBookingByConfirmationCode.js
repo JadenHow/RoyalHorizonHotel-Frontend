@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 
-export function useBookingByConfirmationCode() {
-  const booking = useSelector((state) => state.bookings.currentBooking);
+export default function useBookingByConfirmationCode() {
+  const booking = useSelector((state) => state.booking.currentBooking);
   return booking;
 };

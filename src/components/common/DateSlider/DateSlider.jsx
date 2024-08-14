@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { DateRangePicker } from 'react-date-range';
+import { Button, Form } from 'react-bootstrap';
 
 const DateSlider = ({ onDateChange, onFilterChange }) => {
   const [dateRange, setDateRange] = useState({
@@ -27,13 +28,15 @@ const DateSlider = ({ onDateChange, onFilterChange }) => {
   };
 
   return (
-    <>
+    <React.Fragment>
       <h5>Filter bookings by date</h5>
-      <DateRangePicker ranges={[dateRange]} onChange={handleSelect} className="mb-4" />
-      <button className="btn btn-secondary" onClick={handleClearFilter}>
+      <Form.Group className="mb-4">
+        <DateRangePicker ranges={[dateRange]} onChange={handleSelect} />
+      </Form.Group>
+      <Button variant="secondary" onClick={handleClearFilter}>
         Clear Filter
-      </button>
-    </>
+      </Button>
+    </React.Fragment>
   );
 };
 

@@ -2,12 +2,12 @@ import { useDispatch } from 'react-redux';
 import { useCallback } from 'react';
 import { postLoginRequest } from 'features/auth/authSlice';
 
-export function useLogin() {
+export default function useLogin() {
   const dispatch = useDispatch();
 
   const login = useCallback(
-    (username, password) => {
-      dispatch(postLoginRequest({ username, password }));
+    ({ email, password }) => {
+      dispatch(postLoginRequest({ email, password }));
     },
     [dispatch]
   );

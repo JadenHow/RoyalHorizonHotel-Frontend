@@ -3,7 +3,7 @@ import { postLoginFailure, postLoginSuccess, postRegisterFailure, postRegisterSu
 
 function* workLogin(action) {
   try {
-    const { username, password } = action.payload;
+    const { email, password } = action.payload;
 
     const response = yield call(fetch, 'http://localhost:8080/api/auth/login', {
       method: 'POST',
@@ -11,16 +11,19 @@ function* workLogin(action) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        username,
+        email,
         password
       })
     });
 
+    const responseBody = yield response.text();
+
     if (response.ok) {
-      const { token } = yield response.json();
-      yield put(postLoginSuccess(token));
+      const parsedResponse = JSON.parse(responseBody);
+      const jwtToken = parsedResponse.jwt;
+      yield put(postLoginSuccess(jwtToken));
     } else {
-      yield put(postLoginFailure());
+      yield put(postLoginFailure(responseBody));
     }
   } catch (error) {
     console.error('Error logging in:', error);
@@ -30,7 +33,7 @@ function* workLogin(action) {
 
 function* workRegister(action) {
   try {
-    const { firstname, lastname, email, password } = action.payload;
+    const { firstName, lastName, email, password } = action.payload;
 
     const response = yield call(fetch, 'http://localhost:8080/api/auth/register', {
       method: 'POST',
@@ -38,17 +41,19 @@ function* workRegister(action) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        firstName: firstname,
-        lastName: lastname,
+        firstName,
+        lastName,
         email,
         password
       })
     });
 
+    const responseBody = yield response.text();
+
     if (response.ok) {
       yield put(postRegisterSuccess());
     } else {
-      yield put(postRegisterFailure());
+      yield put(postRegisterFailure(responseBody));
     }
   } catch (error) {
     console.error(error);

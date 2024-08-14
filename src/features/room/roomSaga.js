@@ -1,4 +1,6 @@
-import { call, put, takeEvery } from 'redux-saga/effects';
+import { call, delay, put, takeEvery } from 'redux-saga/effects';
+import { uploadDirect } from '@uploadcare/upload-client';
+import { deleteFile, UploadcareSimpleAuthSchema } from '@uploadcare/rest-client';
 import {
   fetchRoomsFailure,
   fetchRoomsSuccess,
@@ -13,8 +15,14 @@ import {
   fetchAvailableRoomsFailure,
   fetchAvailableRoomsSuccess,
   fetchRoomTypesFailure,
-  fetchRoomTypesSuccess
+  fetchRoomTypesSuccess,
+  clearError
 } from './roomSlice';
+
+const uploadcareSimpleAuthSchema = new UploadcareSimpleAuthSchema({
+  publicKey: process.env.REACT_APP_UPLOADCARE_PUBLIC_KEY,
+  secretKey: process.env.REACT_APP_UPLOADCARE_SECRET_KEY
+});
 
 function* workFetchRooms() {
   try {
@@ -48,20 +56,44 @@ function* workFetchRoomTypes() {
 
 function* workCreateRoom(action) {
   try {
+    const { image, roomType, roomPrice } = action.payload;
+
+    let imageId = null;
+    if (image) {
+      const result = yield call(uploadDirect, image, {
+        publicKey: process.env.REACT_APP_UPLOADCARE_PUBLIC_KEY,
+        store: 'auto'
+      });
+      if (!result.uuid) {
+        throw new Error('Upload failed');
+      }
+      imageId = result.uuid;
+    }
+
     const response = yield call(fetch, 'http://localhost:8080/api/rooms', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${action.payload.token}`
+        'Content-Type': 'application/json'
+        // Authorization: `Bearer ${action.payload.token}`
       },
-      body: JSON.stringify(action.payload.room)
+      body: JSON.stringify({
+        roomType,
+        roomPrice,
+        image: imageId
+      })
     });
 
     if (response.ok) {
       const newRoom = yield response.json();
       yield put(createRoomSuccess(newRoom));
+      yield delay(3000);
+      yield put(clearError());
     } else {
-      yield put(createRoomFailure());
+      const responseBody = yield response.text();
+
+      yield put(createRoomFailure(responseBody));
+      yield delay(3000);
+      yield put(clearError());
     }
   } catch (error) {
     console.error('Error creating room:', error);
@@ -71,14 +103,35 @@ function* workCreateRoom(action) {
 
 function* workUpdateRoom(action) {
   try {
-    const { roomId, room, token } = action.payload;
+    const { roomId, oldImage, newImage, roomType, roomPrice, token } = action.payload;
+
+    let imageId = oldImage;
+    if (newImage) {
+      const result = yield call(uploadDirect, newImage, {
+        publicKey: process.env.REACT_APP_UPLOADCARE_PUBLIC_KEY,
+        store: 1
+      });
+      if (!result.uuid) {
+        throw new Error('Upload failed');
+      }
+      imageId = result.uuid;
+
+      if (oldImage) {
+        yield call(deleteFile, { uuid: oldImage }, { authSchema: uploadcareSimpleAuthSchema });
+      }
+    }
+
     const response = yield call(fetch, `http://localhost:8080/api/rooms/${roomId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify(room)
+      body: JSON.stringify({
+        roomType,
+        roomPrice,
+        image: imageId
+      })
     });
 
     if (response.ok) {
@@ -95,10 +148,16 @@ function* workUpdateRoom(action) {
 
 function* workDeleteRoom(action) {
   try {
-    const response = yield call(fetch, `http://localhost:8080/api/rooms/${action.payload.roomId}`, {
+    const { roomId, oldImage } = action.payload;
+
+    if (oldImage) {
+      yield call(deleteFile, { uuid: oldImage }, { authSchema: uploadcareSimpleAuthSchema });
+    }
+
+    const response = yield call(fetch, `http://localhost:8080/api/rooms/${roomId}`, {
       method: 'DELETE',
       headers: {
-        Authorization: `Bearer ${action.payload.token}`
+        // Authorization: `Bearer ${action.payload.token}`
       }
     });
 

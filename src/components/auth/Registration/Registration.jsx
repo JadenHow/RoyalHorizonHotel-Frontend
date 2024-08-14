@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Button, Container, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-const Registration = ({ onRegister }) => {
+const Registration = ({ onRegister, error, isLoading }) => {
   const [registration, setRegistration] = useState({
     firstName: '',
     lastName: '',
@@ -16,103 +17,95 @@ const Registration = ({ onRegister }) => {
     setRegistration({ ...registration, [e.target.name]: e.target.value });
   };
 
-  const handleRegistration = async (e) => {
+  const handleRegistration = (e) => {
     e.preventDefault();
-    try {
-      await onRegister(registration);
-      setSuccessMessage('Registration success');
+    onRegister(registration);
+  };
+
+  useEffect(() => {
+    if (isLoading) {
       setErrorMessage('');
-      setRegistration({ firstName: '', lastName: '', email: '', password: '' });
-    } catch (error) {
       setSuccessMessage('');
-      setErrorMessage(`Registration error : ${error.message}`);
+    } else {
+      if (error) {
+        setSuccessMessage('');
+        setErrorMessage(error);
+      } else if (error === false) {
+        setSuccessMessage('Registration success');
+        setErrorMessage('');
+        setRegistration({ firstName: '', lastName: '', email: '', password: '' });
+      } else {
+        setErrorMessage('');
+        setSuccessMessage('');
+      }
     }
+
     setTimeout(() => {
       setErrorMessage('');
       setSuccessMessage('');
     }, 5000);
-  };
+  }, [error, isLoading]);
 
   return (
-    <section className="container col-6 mt-5 mb-5">
-      {errorMessage && <p className="alert alert-danger">{errorMessage}</p>}
-      {successMessage && <p className="alert alert-success">{successMessage}</p>}
-
-      <h2>Register</h2>
-      <form onSubmit={handleRegistration}>
-        <div className="mb-3 row">
-          <label htmlFor="firstName" className="col-sm-2 col-form-label">
-            first Name
-          </label>
-          <div className="col-sm-10">
-            <input
-              id="firstName"
-              name="firstName"
+    <Container>
+      <div style={{ padding: '2rem' }}>
+        {errorMessage && <p className="alert alert-danger">{errorMessage}</p>}
+        {successMessage && <p className="alert alert-success">{successMessage}</p>}
+        <h2>Register</h2>
+        <Form onSubmit={handleRegistration}>
+          <Form.Group className="mb-3">
+            <Form.Label>First Name</Form.Label>
+            <Form.Control
               type="text"
-              className="form-control"
+              placeholder="First Name"
+              name="firstName"
               value={registration.firstName}
               onChange={handleInputChange}
             />
-          </div>
-        </div>
+          </Form.Group>
 
-        <div className="mb-3 row">
-          <label htmlFor="lastName" className="col-sm-2 col-form-label">
-            Last Name
-          </label>
-          <div className="col-sm-10">
-            <input
-              id="lastName"
-              name="lastName"
+          <Form.Group className="mb-3">
+            <Form.Label>Last Name</Form.Label>
+            <Form.Control
               type="text"
-              className="form-control"
+              placeholder="Last Name"
+              name="lastName"
               value={registration.lastName}
               onChange={handleInputChange}
             />
-          </div>
-        </div>
+          </Form.Group>
 
-        <div className="mb-3 row">
-          <label htmlFor="email" className="col-sm-2 col-form-label">
-            Email
-          </label>
-          <div className="col-sm-10">
-            <input
-              id="email"
-              name="email"
+          <Form.Group className="mb-3">
+            <Form.Label>Email</Form.Label>
+            <Form.Control
               type="email"
-              className="form-control"
+              placeholder="Email"
+              name="email"
               value={registration.email}
               onChange={handleInputChange}
             />
-          </div>
-        </div>
+          </Form.Group>
 
-        <div className="mb-3 row">
-          <label htmlFor="password" className="col-sm-2 col-form-label">
-            Password
-          </label>
-          <div className="col-sm-10">
-            <input
+          <Form.Group className="mb-3">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
               type="password"
-              className="form-control"
-              id="password"
+              placeholder="Password"
               name="password"
               value={registration.password}
               onChange={handleInputChange}
             />
-          </div>
-        </div>
-        <div className="mb-3">
-          <button type="submit" className="btn btn-hotel" style={{ marginRight: '7.5rem' }}>
+          </Form.Group>
+
+          <Button type="submit">
             Register
-          </button>
+          </Button>
           <span style={{ marginLeft: '10px' }}>
             Already have an account? <Link to={'/login'}>Login</Link>
           </span>
-        </div>
-      </form>
-    </section>
+        </Form>
+      </div>
+    </Container>
   );
 };
 

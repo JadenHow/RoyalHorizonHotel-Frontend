@@ -6,8 +6,8 @@ export default function useFetchRoomById() {
   const dispatch = useDispatch();
 
   const fetchRoomById = useCallback(
-    (roomId) => {
-      dispatch(fetchRoomByIdRequest(roomId));
+    ({ roomId }) => {
+      dispatch(fetchRoomByIdRequest({ roomId }));
     },
     [dispatch]
   );

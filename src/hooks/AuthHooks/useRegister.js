@@ -2,12 +2,12 @@ import { useDispatch } from 'react-redux';
 import { useCallback } from 'react';
 import { postRegisterRequest } from 'features/auth/authSlice';
 
-export function useRegister() {
+export default function useRegister() {
   const dispatch = useDispatch();
 
   const register = useCallback(
-    (firstname, lastname, email, password) => {
-      dispatch(postRegisterRequest({ firstname, lastname, email, password }));
+    ({ firstName, lastName, email, password }) => {
+      dispatch(postRegisterRequest({ firstName, lastName, email, password }));
     },
     [dispatch]
   );

@@ -6,8 +6,8 @@ export default function useDeleteRoom() {
   const dispatch = useDispatch();
 
   const deleteRoom = useCallback(
-    (roomId) => {
-      dispatch(deleteRoomRequest(roomId));
+    ({ roomId, oldImage }) => {
+      dispatch(deleteRoomRequest({ roomId, oldImage }));
     },
     [dispatch]
   );

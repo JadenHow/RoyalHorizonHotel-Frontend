@@ -8,6 +8,7 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const auth = AuthHooks.useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { userId, userRole, token } = auth;
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -17,8 +18,7 @@ export const AuthProvider = ({ children }) => {
       setIsLoggedIn(true);
       logoutTimer = setTimeout(onLogout, 3600000); // 1 hour
     } else {
-      if (Object.keys(auth).length !== 0) {
-        const { userId, userRole, token } = auth;
+      if (userId !== null) {
         setIsLoggedIn(true);
         localStorage.setItem('userId', userId);
         localStorage.setItem('userRole', userRole);

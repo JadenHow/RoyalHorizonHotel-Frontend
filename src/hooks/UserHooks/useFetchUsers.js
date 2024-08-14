@@ -6,7 +6,7 @@ export default function useFetchUsers() {
   const dispatch = useDispatch();
 
   const fetchUsers = useCallback(
-    (token) => {
+    ({ token }) => {
       dispatch(fetchUsersRequest({ token }));
     },
     [dispatch]
