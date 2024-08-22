@@ -51,7 +51,7 @@ const RoomTypeSelector = ({ handleRoomInputChange, newRoom, roomTypes: types }) 
         </Col>
       </Row>
       {showNewRoomTypeInput && (
-        <>
+        <React.Fragment>
           <Row className="mt-2">
             <Col>
               <Form.Group className="input-group">
@@ -66,12 +66,12 @@ const RoomTypeSelector = ({ handleRoomInputChange, newRoom, roomTypes: types }) 
           </Row>
           <Row>
             <Col>
-              <Button className="btn-hotel mt-2" type="button" onClick={handleAddNewRoomType}>
+              <Button className="mt-2" type="button" onClick={handleAddNewRoomType}>
                 Add
               </Button>
             </Col>
           </Row>
-        </>
+        </React.Fragment>
       )}
     </div>
   );

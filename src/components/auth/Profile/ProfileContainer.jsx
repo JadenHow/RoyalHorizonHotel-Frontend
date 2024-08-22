@@ -9,8 +9,7 @@ const ProfileContainer = () => {
   const fetchUserById = UserHooks.useFetchUserById();
   const userById = UserHooks.useUserById();
   const deleteUser = UserHooks.useDeleteUser();
-  const { isLoading: bookingIsLoading, error: bookingError } = BookingHooks.useBooking();
-  const { isLoading: userIsLoading, error: userError } = UserHooks.useUser();
+  const { isLoading: userIsLoading } = UserHooks.useUser();
 
   const allProps = {
     fetchBookingsByUserId,
@@ -18,10 +17,7 @@ const ProfileContainer = () => {
     fetchUserById,
     userById,
     deleteUser,
-    bookingIsLoading,
-    bookingError,
-    userIsLoading,
-    userError
+    userIsLoading
   };
 
   return (

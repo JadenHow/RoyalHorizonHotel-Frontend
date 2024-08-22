@@ -3,7 +3,7 @@ import { ParallaxWrapper, AnimatedContainer, AnimatedH1, AnimatedH3, HotelColor 
 
 const Parallax = () => {
   return (
-    <ParallaxWrapper className="parallax">
+    <ParallaxWrapper>
       <AnimatedContainer>
         <div>
           <AnimatedH1>

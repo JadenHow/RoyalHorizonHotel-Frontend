@@ -4,9 +4,16 @@ import AuthHooks from 'hooks/AuthHooks';
 
 const LoginContainer = () => {
   const login = AuthHooks.useLogin();
+  const { error, isLoading } = AuthHooks.useAuth();
+
+  const allProps = {
+    onLogin: login,
+    error,
+    isLoading
+  };
 
   return (
-    <Login onLogin={login} />
+    <Login {...allProps} />
   );
 };
 

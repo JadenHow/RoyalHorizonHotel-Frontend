@@ -26,7 +26,7 @@ const uploadcareSimpleAuthSchema = new UploadcareSimpleAuthSchema({
 
 function* workFetchRooms() {
   try {
-    const response = yield call(fetch, 'http://localhost:8080/api/rooms');
+    const response = yield call(fetch, 'https://royalhorizonhotel-backend-s5k2dwd5ma-uc.a.run.app/api/rooms');
     if (response.ok) {
       const rooms = yield response.json();
       yield put(fetchRoomsSuccess(rooms));
@@ -41,7 +41,7 @@ function* workFetchRooms() {
 
 function* workFetchRoomTypes() {
   try {
-    const response = yield call(fetch, 'http://localhost:8080/api/rooms/types');
+    const response = yield call(fetch, 'https://royalhorizonhotel-backend-s5k2dwd5ma-uc.a.run.app/api/rooms/types');
     if (response.ok) {
       const roomTypes = yield response.json();
       yield put(fetchRoomTypesSuccess(roomTypes));
@@ -70,11 +70,12 @@ function* workCreateRoom(action) {
       imageId = result.uuid;
     }
 
-    const response = yield call(fetch, 'http://localhost:8080/api/rooms', {
+    const token = localStorage.getItem('token');
+    const response = yield call(fetch, 'https://royalhorizonhotel-backend-s5k2dwd5ma-uc.a.run.app/api/rooms', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
-        // Authorization: `Bearer ${action.payload.token}`
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({
         roomType,
@@ -103,7 +104,7 @@ function* workCreateRoom(action) {
 
 function* workUpdateRoom(action) {
   try {
-    const { roomId, oldImage, newImage, roomType, roomPrice, token } = action.payload;
+    const { roomId, oldImage, newImage, roomType, roomPrice } = action.payload;
 
     let imageId = oldImage;
     if (newImage) {
@@ -121,7 +122,8 @@ function* workUpdateRoom(action) {
       }
     }
 
-    const response = yield call(fetch, `http://localhost:8080/api/rooms/${roomId}`, {
+    const token = localStorage.getItem('token');
+    const response = yield call(fetch, `https://royalhorizonhotel-backend-s5k2dwd5ma-uc.a.run.app/api/rooms/${roomId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -137,8 +139,12 @@ function* workUpdateRoom(action) {
     if (response.ok) {
       const updatedRoom = yield response.json();
       yield put(updateRoomSuccess(updatedRoom));
+      yield delay(3000);
+      yield put(clearError());
     } else {
       yield put(updateRoomFailure());
+      yield delay(3000);
+      yield put(clearError());
     }
   } catch (error) {
     console.error('Error updating room:', error);
@@ -154,17 +160,22 @@ function* workDeleteRoom(action) {
       yield call(deleteFile, { uuid: oldImage }, { authSchema: uploadcareSimpleAuthSchema });
     }
 
-    const response = yield call(fetch, `http://localhost:8080/api/rooms/${roomId}`, {
+    const token = localStorage.getItem('token');
+    const response = yield call(fetch, `https://royalhorizonhotel-backend-s5k2dwd5ma-uc.a.run.app/api/rooms/${roomId}`, {
       method: 'DELETE',
       headers: {
-        // Authorization: `Bearer ${action.payload.token}`
+        Authorization: `Bearer ${token}`
       }
     });
 
     if (response.ok) {
       yield put(deleteRoomSuccess(action.payload.roomId));
+      yield delay(3000);
+      yield put(clearError());
     } else {
       yield put(deleteRoomFailure());
+      yield delay(3000);
+      yield put(clearError());
     }
   } catch (error) {
     console.error('Error deleting room:', error);
@@ -174,7 +185,8 @@ function* workDeleteRoom(action) {
 
 function* workFetchRoomById(action) {
   try {
-    const response = yield call(fetch, `http://localhost:8080/api/rooms/${action.payload}`);
+    const { roomId } = action.payload;
+    const response = yield call(fetch, `https://royalhorizonhotel-backend-s5k2dwd5ma-uc.a.run.app/api/rooms/${roomId}`);
     if (response.ok) {
       const room = yield response.json();
       yield put(fetchRoomByIdSuccess(room));
@@ -189,7 +201,7 @@ function* workFetchRoomById(action) {
 
 function* workFetchAvailableRooms(action) {
   try {
-    const response = yield call(fetch, 'http://localhost:8080/api/rooms/available', {
+    const response = yield call(fetch, 'https://royalhorizonhotel-backend-s5k2dwd5ma-uc.a.run.app/api/rooms/available', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

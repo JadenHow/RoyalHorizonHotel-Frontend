@@ -7,6 +7,7 @@ import useCancelBooking from './useCancelBooking';
 import useBookings from './useBookings';
 import useBookingByConfirmationCode from './useBookingByConfirmationCode';
 import useBookingsByUserId from './useBookingsByUserId';
+import useBookingConfirmationCode from './useBookingConfirmationCode';
 
 export const BookingHooks = {
   useBooking,
@@ -17,7 +18,8 @@ export const BookingHooks = {
   useCancelBooking,
   useBookings,
   useBookingByConfirmationCode,
-  useBookingsByUserId
+  useBookingsByUserId,
+  useBookingConfirmationCode
 };
 
 export default BookingHooks;

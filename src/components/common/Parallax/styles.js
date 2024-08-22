@@ -53,7 +53,7 @@ const bounceIn = keyframes`
 `;
 
 export const ParallaxWrapper = styled.div`
-  margin-bottom: 3rem;
+  margin-bottom: 1.5rem;
 `;
 
 export const AnimatedContainer = styled(Container)`

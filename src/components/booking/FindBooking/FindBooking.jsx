@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import moment from 'moment';
-import { cancelBooking, getBookingByConfirmationCode } from '../utils/ApiFunctions';
+import { Alert, Button, InputGroup, Spinner, Form } from 'react-bootstrap';
 
-const FindBooking = () => {
+const FindBooking = ({ cancelBooking, fetchBookingByConfirmationCode, bookingByConfirmationCode, isLoading, error }) => {
   const [confirmationCode, setConfirmationCode] = useState('');
-  const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
   const [bookingInfo, setBookingInfo] = useState({
     id: '',
     bookingConfirmationCode: '',
@@ -36,6 +36,7 @@ const FindBooking = () => {
   };
 
   const [isDeleted, setIsDeleted] = useState(false);
+  const [currentOperation, setCurrentOperation] = useState('');
 
   const handleInputChange = (event) => {
     setConfirmationCode(event.target.value);
@@ -43,108 +44,122 @@ const FindBooking = () => {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-    setIsLoading(true);
+    setCurrentOperation('fetch');
+    fetchBookingByConfirmationCode({ confirmationCode });
+  };
 
-    try {
-      const data = await getBookingByConfirmationCode(confirmationCode);
-      setBookingInfo(data);
-      setError(null);
-    } catch (error) {
-      setBookingInfo(emptyBookingInfo);
-      if (error.response && error.response.status === 404) {
-        setError(error.response.data.message);
+  const handleBookingCancellation = (bookingId) => {
+    setCurrentOperation('cancel');
+    cancelBooking({ bookingId });
+    setIsDeleted(true);
+    setBookingInfo(emptyBookingInfo);
+    setConfirmationCode('');
+  };
+
+  useEffect(() => {
+    if (isLoading) {
+      setErrorMessage('');
+      setSuccessMessage('');
+    } else {
+      if (error) {
+        setSuccessMessage('');
+        if (currentOperation === 'fetch') {
+          setErrorMessage('No booking found with the provided ID');
+        } else if (currentOperation === 'cancel') {
+          setErrorMessage(`Error canceling booking: ${error}`);
+        }
+      } else if (error === false) {
+        if (currentOperation === 'cancel') {
+          setSuccessMessage('Booking has been cancelled successfully!');
+        } else if (currentOperation === 'fetch') {
+          setSuccessMessage('Booking fetched successfully!');
+        }
       } else {
-        setError(error.message);
+        setErrorMessage('');
+        setSuccessMessage('');
       }
     }
 
-    setTimeout(() => setIsLoading(false), 2000);
-  };
-
-  const handleBookingCancellation = async (bookingId) => {
-    try {
-      await cancelBooking(bookingInfo.id);
-      setIsDeleted(true);
-      setSuccessMessage('Booking has been cancelled successfully!');
-      setBookingInfo(emptyBookingInfo);
-      setConfirmationCode('');
-      setError(null);
-    } catch (error) {
-      setError(error.message);
+    if (bookingByConfirmationCode && !isLoading && currentOperation === 'fetch') {
+      setBookingInfo(bookingByConfirmationCode);
     }
-    setTimeout(() => {
+
+    const timer = setTimeout(() => {
+      setErrorMessage('');
       setSuccessMessage('');
-      setIsDeleted(false);
-    }, 2000);
-  };
+      setCurrentOperation('');
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [error, isLoading, bookingByConfirmationCode, currentOperation]);
 
   return (
-    <>
-      <div className='container mt-5 d-flex flex-column justify-content-center align-items-center'>
-        <h2 className='text-center mb-4'>Find My Booking</h2>
-        <form onSubmit={handleFormSubmit} className='col-md-6'>
-          <div className='input-group mb-3'>
-            <input
-              className='form-control'
-              type='text'
-              id='confirmationCode'
-              name='confirmationCode'
+    <React.Fragment>
+      <div className="container mt-5 d-flex flex-column justify-content-center align-items-center">
+        <h2 className="text-center mb-4">Find My Booking</h2>
+        <Form onSubmit={handleFormSubmit} className="col-md-6">
+          <InputGroup className="mb-3">
+            <Form.Control
+              type="text"
+              id="confirmationCode"
+              name="confirmationCode"
               value={confirmationCode}
               onChange={handleInputChange}
-              placeholder='Enter the booking confirmation code'
+              placeholder="Enter the booking confirmation code"
             />
-
-            <button type='submit' className='btn btn-hotel input-group-text'>
+            <Button type="submit" className="input-group-text">
               Find booking
-            </button>
-          </div>
-        </form>
+            </Button>
+          </InputGroup>
+        </Form>
 
         {isLoading
           ? (
-            <div>Finding your booking...</div>
+            <Spinner animation="border" role="status">
+              <span className="visually-hidden">Finding your booking...</span>
+            </Spinner>
           )
-          : error
+          : errorMessage
             ? (
-              <div className='text-danger'>Error: {error}</div>
+              <Alert variant="danger">Error: {errorMessage}</Alert>
             )
-            : bookingInfo.bookingConfirmationCode
-              ? (
-                <div className='col-md-6 mt-4 mb-5'>
-                  <h3>Booking Information</h3>
-                  <p className='text-success'>Confirmation Code: {bookingInfo.bookingConfirmationCode}</p>
-                  <p>Room Number: {bookingInfo.room.id}</p>
-                  <p>Room Type: {bookingInfo.room.roomType}</p>
-                  <p>
-                    Check-in Date:{' '}
-                    {moment(bookingInfo.checkInDate).subtract(1, 'month').format('MMM Do, YYYY')}
-                  </p>
-                  <p>
+            : bookingInfo?.bookingConfirmationCode && (
+              <div className="col-md-6 mt-4 mb-5">
+                <h3>Booking Information</h3>
+                <p className="text-success">Confirmation Code: {bookingInfo?.bookingConfirmationCode}</p>
+                <p>Room Number: {bookingInfo?.roomId}</p>
+                <p>
+                  Check-in Date:{' '}
+                  {moment(bookingInfo?.checkInDate).subtract(1, 'month').format('MMM Do, YYYY')}
+                </p>
+                <p>
                 Check-out Date:{' '}
-                    {moment(bookingInfo.checkInDate).subtract(1, 'month').format('MMM Do, YYYY')}
-                  </p>
-                  <p>Full Name: {bookingInfo.guestName}</p>
-                  <p>Email Address: {bookingInfo.guestEmail}</p>
-                  <p>Adults: {bookingInfo.numOfAdults}</p>
-                  <p>Children: {bookingInfo.numOfChildren}</p>
-                  <p>Total Guest: {bookingInfo.totalNumOfGuests}</p>
+                  {moment(bookingInfo?.checkOutDate).subtract(1, 'month').format('MMM Do, YYYY')}
+                </p>
+                <p>Full Name: {bookingInfo?.guestFullName}</p>
+                <p>Email Address: {bookingInfo?.guestEmail}</p>
+                <p>Adults: {bookingInfo?.numOfAdults}</p>
+                <p>Children: {bookingInfo?.numOfChildren}</p>
+                <p>Total Guest: {bookingInfo?.totalNumOfGuest}</p>
 
-                  {!isDeleted && (
-                    <button
-                      onClick={() => handleBookingCancellation(bookingInfo.id)}
-                      className='btn btn-danger'>
-                      Cancel Booking
-                    </button>
-                  )}
-                </div>
-              )
-              : (
-                <div>find booking...</div>
-              )}
+                {!isDeleted && (
+                  <Button
+                    onClick={() => handleBookingCancellation(bookingInfo?.bookingId)}
+                    variant="danger"
+                  >
+                    Cancel Booking
+                  </Button>
+                )}
+              </div>
+            )}
 
-        {isDeleted && <div className='alert alert-success mt-3 fade show'>{successMessage}</div>}
+        {successMessage && (
+          <Alert variant="success" className="mt-3 fade show">
+            {successMessage}
+          </Alert>
+        )}
       </div>
-    </>
+    </React.Fragment>
   );
 };
 

@@ -1,51 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { cancelBooking, getAllBookings } from '../utils/ApiFunctions';
-import Header from '../common/Header';
-import BookingsTable from './BookingsTable';
+import Header from 'components/common/Header';
+import BookingsTable from '../BookingsTable';
+import { Container } from 'react-bootstrap';
 
-const Bookings = () => {
-  const [bookingInfo, setBookingInfo] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+const Bookings = ({ bookings, fetchBookings, cancelBooking, isLoading }) => {
+  const [needsRefresh, setNeedsRefresh] = useState(false);
+
+  const handleBookingCancellation = (bookingId) => {
+    cancelBooking(bookingId);
+    setNeedsRefresh(true);
+  };
 
   useEffect(() => {
-    setTimeout(() => {
-      getAllBookings()
-        .then((data) => {
-          setBookingInfo(data);
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          setError(error.message);
-          setIsLoading(false);
-        });
-    }, 1000);
-  }, []);
-
-  const handleBookingCancellation = async (bookingId) => {
-    try {
-      await cancelBooking(bookingId);
-      const data = await getAllBookings();
-      setBookingInfo(data);
-    } catch (error) {
-      setError(error.message);
+    if (needsRefresh && !isLoading) {
+      fetchBookings();
+      setNeedsRefresh(false);
     }
-  };
+  }, [needsRefresh, isLoading]);
 
   return (
     <section style={{ backgroundColor: 'whitesmoke' }}>
-      <Header title={'Existing Bookings'} />
-      {error && <div className="text-danger">{error}</div>}
-      {isLoading
-        ? (
-          <div>Loading existing bookings</div>
-        )
-        : (
-          <BookingsTable
-            bookingInfo={bookingInfo}
-            handleBookingCancellation={handleBookingCancellation}
-          />
-        )}
+      <Container>
+        <Header title="Existing Bookings" />
+        {isLoading
+          ? (
+            <div className="d-flex justify-content-center align-items-center">
+              <span className="ms-2">Loading existing bookings</span>
+            </div>
+          )
+          : (
+            <BookingsTable
+              bookingInfo={bookings}
+              handleBookingCancellation={handleBookingCancellation}
+            />
+          )}
+      </Container>
     </section>
   );
 };

@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { getRoomById, updateRoom } from '../utils/ApiFunctions';
+import { Alert, Button, Carousel, Col, Container, Form, Row } from 'react-bootstrap';
 import { Link, useParams } from 'react-router-dom';
 
-const EditRoom = () => {
+const EditRoom = ({ updateRoom, fetchRoomById, roomById, isLoading, error }) => {
   const [room, setRoom] = useState({
-    photo: '',
+    image: null,
     roomType: '',
     roomPrice: ''
   });
 
-  const [imagePreview, setImagePreview] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const { roomId } = useParams();
+  const [needsRefresh, setNeedsRefresh] = useState(false);
+  const [oldImage, setOldImage] = useState('');
 
   const handleImageChange = (e) => {
     const selectedImage = e.target.files[0];
-    setRoom({ ...room, photo: selectedImage });
-    setImagePreview(URL.createObjectURL(selectedImage));
+    setRoom({ ...room, image: selectedImage });
   };
 
   const handleInputChange = (event) => {
@@ -25,116 +25,111 @@ const EditRoom = () => {
     setRoom({ ...room, [name]: value });
   };
 
-  useEffect(() => {
-    const fetchRoom = async () => {
-      try {
-        const roomData = await getRoomById(roomId);
-        setRoom(roomData);
-        setImagePreview(roomData.photo);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchRoom();
-  }, [roomId]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    try {
-      const response = await updateRoom(roomId, room);
-      if (response.status === 200) {
-        setSuccessMessage('Room updated successfully!');
-        const updatedRoomData = await getRoomById(roomId);
-        setRoom(updatedRoomData);
-        setImagePreview(updatedRoomData.photo);
-        setErrorMessage('');
-      } else {
-        setErrorMessage('Error updating room');
-      }
-    } catch (error) {
-      console.error(error);
-      setErrorMessage(error.message);
-    }
+    const { image, roomType, roomPrice } = room;
+    updateRoom({ roomId, newImage: image, oldImage, roomType, roomPrice });
+    setNeedsRefresh(true);
   };
 
+  useEffect(() => {
+    setRoom({ ...roomById, image: null });
+    setOldImage(roomById?.image);
+  }, [roomById]);
+
+  useEffect(() => {
+    if (needsRefresh && !isLoading) {
+      fetchRoomById({ roomId });
+      setNeedsRefresh(false);
+    }
+  }, [needsRefresh, isLoading, fetchRoomById, roomId]);
+
+  useEffect(() => {
+    if (isLoading) {
+      setErrorMessage('');
+      setSuccessMessage('');
+    } else {
+      if (error) {
+        setSuccessMessage('');
+        setErrorMessage(error);
+      } else if (error === false) {
+        setSuccessMessage('Room updated successfully');
+        setErrorMessage('');
+      } else {
+        setErrorMessage('');
+        setSuccessMessage('');
+      }
+    }
+
+    setTimeout(() => {
+      setErrorMessage('');
+      setSuccessMessage('');
+    }, 3000);
+  }, [error, isLoading]);
+
   return (
-    <div className='container mt-5 mb-5'>
-      <h3 className='text-center mb-5 mt-5'>Edit Room</h3>
-      <div className='row justify-content-center'>
-        <div className='col-md-8 col-lg-6'>
+    <Container className="mt-5 mb-5">
+      <h3 className="text-center mb-5 mt-5">Edit Room</h3>
+      <Row className="justify-content-center">
+        <Col md={8} lg={6}>
           {successMessage && (
-            <div className='alert alert-success' role='alert'>
+            <Alert variant="success" role="alert">
               {successMessage}
-            </div>
+            </Alert>
           )}
           {errorMessage && (
-            <div className='alert alert-danger' role='alert'>
+            <Alert variant="danger" role="alert">
               {errorMessage}
-            </div>
+            </Alert>
           )}
-          <form onSubmit={handleSubmit}>
-            <div className='mb-3'>
-              <label htmlFor='roomType' className='form-label hotel-color'>
-                Room Type
-              </label>
-              <input
-                type='text'
-                className='form-control'
-                id='roomType'
-                name='roomType'
-                value={room.roomType}
+          <Form onSubmit={handleSubmit}>
+            <Form.Group controlId="roomType" className="mb-3">
+              <Form.Label className="hotel-color">Room Type</Form.Label>
+              <Form.Control
+                type="text"
+                name="roomType"
+                value={room?.roomType}
                 onChange={handleInputChange}
               />
-            </div>
-            <div className='mb-3'>
-              <label htmlFor='roomPrice' className='form-label hotel-color'>
-                Room Price
-              </label>
-              <input
-                type='number'
-                className='form-control'
-                id='roomPrice'
-                name='roomPrice'
-                value={room.roomPrice}
+            </Form.Group>
+            <Form.Group controlId="roomPrice" className="mb-3">
+              <Form.Label className="hotel-color">Room Price</Form.Label>
+              <Form.Control
+                type="number"
+                name="roomPrice"
+                value={room?.roomPrice}
                 onChange={handleInputChange}
               />
-            </div>
-
-            <div className='mb-3'>
-              <label htmlFor='photo' className='form-label hotel-color'>
-                Photo
-              </label>
-              <input
-                required
-                type='file'
-                className='form-control'
-                id='photo'
-                name='photo'
+            </Form.Group>
+            <Form.Group controlId="photo" className="mb-3">
+              <Form.Label className="hotel-color">Photo</Form.Label>
+              <Form.Control
+                type="file"
+                name="photo"
                 onChange={handleImageChange}
               />
-              {imagePreview && (
-                <img
-                  src={`data:image/jpeg;base64,${imagePreview}`}
-                  alt='Room preview'
-                  style={{ maxWidth: '400px', maxHeight: '400' }}
-                  className='mt-3'
-                />
-              )}
-            </div>
-            <div className='d-grid gap-2 d-md-flex mt-2'>
-              <Link to={'/existing-rooms'} className='btn btn-outline-info ml-5'>
-                back
-              </Link>
-              <button type='submit' className='btn btn-outline-warning'>
+              {oldImage && <Carousel>
+                <Carousel.Item>
+                  <img
+                    src={`https://ucarecdn.com/${oldImage}/`}
+                    alt=""
+                    style={{ height: '28.125rem', width: '40rem', objectFit: 'cover', marginTop: '1rem' }}
+                  />
+                </Carousel.Item>
+              </Carousel>}
+            </Form.Group>
+            <div className="d-grid gap-2 d-md-flex mt-2">
+              <Button as={Link} to="/existing-rooms" variant="outline-info">
+                Back
+              </Button>
+              <Button type="submit" variant="outline-warning">
                 Edit Room
-              </button>
+              </Button>
             </div>
-          </form>
-        </div>
-      </div>
-    </div>
+          </Form>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 

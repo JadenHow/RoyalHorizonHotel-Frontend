@@ -28,10 +28,11 @@ export const bookingSlice = createSlice({
     saveBookingSuccess: (state, action) => {
       state.confirmationCode = action.payload;
       state.isLoading = false;
+      state.error = false;
     },
     saveBookingFailure: (state, action) => {
-      state.error = action.payload;
       state.isLoading = false;
+      state.error = action.payload;
     },
     fetchBookingByConfirmationCodeRequest: (state) => {
       state.isLoading = true;
@@ -43,6 +44,7 @@ export const bookingSlice = createSlice({
     fetchBookingByConfirmationCodeFailure: (state, action) => {
       state.error = action.payload;
       state.isLoading = false;
+      state.currentBooking = null;
     },
     fetchBookingsByUserIdRequest: (state) => {
       state.isLoading = true;
@@ -60,11 +62,16 @@ export const bookingSlice = createSlice({
     },
     cancelBookingSuccess: (state, action) => {
       state.bookings = state.bookings.filter(booking => booking.id !== action.payload.id);
+      state.currentBooking = null;
       state.isLoading = false;
+      state.error = false;
     },
     cancelBookingFailure: (state, action) => {
-      state.error = action.payload;
       state.isLoading = false;
+      state.error = action.payload;
+    },
+    clearError: (state) => {
+      state.error = null;
     }
   }
 });
@@ -84,7 +91,8 @@ export const {
   fetchBookingsByUserIdFailure,
   cancelBookingRequest,
   cancelBookingSuccess,
-  cancelBookingFailure
+  cancelBookingFailure,
+  clearError
 } = bookingSlice.actions;
 
 export default bookingSlice.reducer;

@@ -21,7 +21,7 @@ const RoomSearchResults = ({ results, onClearSearch }) => {
     <React.Fragment>
       {results.length > 0
         ? (<React.Fragment>
-          <h5 className="text-center mt-5">Search Results</h5>
+          <h5 className="text-center mt-5 mb-4">Search Results</h5>
           <Row>
             {paginatedResults.map((room) => (
               <RoomCard key={room.id} room={room} />

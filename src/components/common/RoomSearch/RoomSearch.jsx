@@ -30,7 +30,7 @@ const RoomSearch = ({ fetchAvailableRooms, availableRooms: rooms }) => {
       setErrorMessage('Check-out date must be after check-in date');
       return;
     }
-    fetchAvailableRooms(searchQuery.checkInDate, searchQuery.checkOutDate, searchQuery.roomType);
+    fetchAvailableRooms({ checkInDate: searchQuery.checkInDate, checkOutDate: searchQuery.checkOutDate, roomType: searchQuery.roomType });
   };
 
   const handleInputChange = (e) => {

@@ -2,7 +2,6 @@ import React from 'react';
 import { useLocation } from 'react-router-dom';
 import MainHeader from 'components/layout/MainHeader';
 import RoomSearch from 'components/common/RoomSearch';
-import RoomCarousel from 'components/common/RoomCarousel/RoomCarousel';
 import Parallax from 'components/common/Parallax';
 import HotelService from 'components/common/HotelService';
 
@@ -15,17 +14,13 @@ const Home = () => {
     <section>
       {message && <p className="text-warning px-5">{message}</p>}
       {currentUser && (
-        <h6 className="text-success text-center"> You are logged-In as {currentUser}</h6>
+        <h6 className="text-success text-center" style={{ margin: '0.5rem 0' }}> You are logged-In as {currentUser}</h6>
       )}
       <MainHeader />
       <div className="container">
         <RoomSearch />
-        <RoomCarousel />
         <Parallax />
-        <RoomCarousel />
         <HotelService />
-        <Parallax />
-        <RoomCarousel />
       </div>
     </section>
   );

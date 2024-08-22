@@ -43,7 +43,7 @@ const Registration = ({ onRegister, error, isLoading }) => {
     setTimeout(() => {
       setErrorMessage('');
       setSuccessMessage('');
-    }, 5000);
+    }, 3000);
   }, [error, isLoading]);
 
   return (

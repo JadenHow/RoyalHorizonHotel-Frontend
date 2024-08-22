@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import moment from 'moment';
-import { Alert, Button, Card, Col, Container, Image, Row, Table } from 'react-bootstrap';
+import { Card, Col, Container, Image, Row } from 'react-bootstrap';
 
-const Profile = ({ fetchBookingsByUserId, bookingsByUserId, fetchUserById, userById, deleteUser, bookingIsLoading, bookingError, userIsLoading, userError }) => {
+const Profile = ({ fetchBookingsByUserId, fetchUserById, userById, userIsLoading }) => {
   const [user, setUser] = useState({
     id: '',
     email: '',
@@ -11,20 +9,6 @@ const Profile = ({ fetchBookingsByUserId, bookingsByUserId, fetchUserById, userB
     lastName: '',
     roles: ''
   });
-
-  const [bookings, setBookings] = useState([
-    {
-      id: '',
-      room: { id: '', roomType: '' },
-      checkInDate: '',
-      checkOutDate: '',
-      bookingConfirmationCode: ''
-    }
-  ]);
-
-  const [message, setMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const navigate = useNavigate();
 
   const id = localStorage.getItem('userId');
   const token = localStorage.getItem('token');
@@ -43,42 +27,12 @@ const Profile = ({ fetchBookingsByUserId, bookingsByUserId, fetchUserById, userB
     fetchBookingsByUserId({ id, token });
   }, [id]);
 
-  useEffect(() => {
-    if (!bookingIsLoading) {
-      setBookings(bookingsByUserId);
-    }
-  }, [bookingsByUserId]);
-
-  const handleDeleteAccount = async () => {
-    const confirmed = window.confirm(
-      'Are you sure you want to delete your account? This action cannot be undone.'
-    );
-
-    if (confirmed) {
-      await deleteUser(id)
-        .then((response) => {
-          setMessage(response.data);
-          localStorage.removeItem('token');
-          localStorage.removeItem('userId');
-          localStorage.removeItem('userRole');
-          navigate('/');
-          window.location.reload();
-        })
-        .catch((error) => {
-          setErrorMessage(error.data);
-        });
-    }
-  };
-
-  if (bookingIsLoading || userIsLoading) return <div>Loading...</div>;
+  if (userIsLoading) return <div>Loading...</div>;
   return (
     <Container>
-      {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
-      {message && <Alert variant="danger">{message}</Alert>}
-
       {user
         ? (
-          <Card className="p-5 mt-5" bg="light">
+          <Card className="p-5 mt-5 mb-5" bg="light">
             <Card.Title as="h4" className="text-center">User Information</Card.Title>
             <Card.Body>
               <Row className="justify-content-center mb-4">
@@ -120,47 +74,6 @@ const Profile = ({ fetchBookingsByUserId, bookingsByUserId, fetchUserById, userB
                 <Col md={10}>{user.role}</Col>
               </Row>
               <hr />
-
-              <Card.Title as="h4" className="text-center">Booking History</Card.Title>
-
-              {bookings.length > 0
-                ? (
-                  <Table bordered hover className="shadow">
-                    <thead>
-                      <tr>
-                        <th>Booking ID</th>
-                        <th>Room ID</th>
-                        <th>Room Type</th>
-                        <th>Check In Date</th>
-                        <th>Check Out Date</th>
-                        <th>Confirmation Code</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {bookings.map((booking, index) => (
-                        <tr key={index}>
-                          <td>{booking.id}</td>
-                          <td>{booking.room.id}</td>
-                          <td>{booking.room.roomType}</td>
-                          <td>{moment(booking.checkInDate).subtract(1, 'month').format('MMM Do, YYYY')}</td>
-                          <td>{moment(booking.checkOutDate).subtract(1, 'month').format('MMM Do, YYYY')}</td>
-                          <td>{booking.bookingConfirmationCode}</td>
-                          <td className="text-success">On-going</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </Table>
-                )
-                : (
-                  <p>You have not made any bookings yet.</p>
-                )}
-
-              <div className="d-flex justify-content-center">
-                <Button variant="danger" size="sm" onClick={handleDeleteAccount}>
-                  Close account
-                </Button>
-              </div>
             </Card.Body>
           </Card>
         )

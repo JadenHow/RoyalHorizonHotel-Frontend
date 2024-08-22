@@ -1,3 +1,3 @@
-import Logout from './Logout';
+import LogoutContainer from './LogoutContainer';
 
-export default Logout;
+export default LogoutContainer;

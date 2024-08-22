@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from 'contexts/AuthContext';
 import { Button, Container, Form } from 'react-bootstrap';
 
-const Login = ({ onLogin }) => {
+const Login = ({ onLogin, isLoading, error }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [login, setLogin] = useState({
     email: '',
@@ -19,20 +19,34 @@ const Login = ({ onLogin }) => {
     setLogin({ ...login, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    await onLogin(login);
+    onLogin(login);
+  };
 
+  useEffect(() => {
     if (isLoggedIn) {
       navigate(redirectUrl, { replace: true });
+    }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (isLoading) {
+      setErrorMessage('');
     } else {
-      setErrorMessage('Invalid username or password. Please try again.');
+      if (error) {
+        setErrorMessage(error);
+      } else if (error === false) {
+        setErrorMessage('');
+      } else {
+        setErrorMessage('');
+      }
     }
 
     setTimeout(() => {
       setErrorMessage('');
-    }, 4000);
-  };
+    }, 3000);
+  }, [error, isLoading]);
 
   if (isLoggedIn) {
     return <Navigate to="/" />;

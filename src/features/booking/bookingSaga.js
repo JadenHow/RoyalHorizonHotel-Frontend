@@ -1,4 +1,4 @@
-import { call, put, takeEvery } from 'redux-saga/effects';
+import { call, delay, put, takeEvery } from 'redux-saga/effects';
 import {
   fetchBookingsFailure,
   fetchBookingsSuccess,
@@ -9,12 +9,13 @@ import {
   fetchBookingsByUserIdFailure,
   fetchBookingsByUserIdSuccess,
   cancelBookingFailure,
-  cancelBookingSuccess
+  cancelBookingSuccess,
+  clearError
 } from './bookingSlice';
 
 function* workFetchBookings() {
   try {
-    const response = yield call(fetch, 'http://localhost:8080/api/bookings');
+    const response = yield call(fetch, 'https://royalhorizonhotel-backend-s5k2dwd5ma-uc.a.run.app/api/bookings');
     if (response.ok) {
       const bookings = yield response.json();
       yield put(fetchBookingsSuccess(bookings));
@@ -29,21 +30,25 @@ function* workFetchBookings() {
 
 function* workSaveBooking(action) {
   try {
-    const { roomId, bookingRequest, token } = action.payload;
-    const response = yield call(fetch, `http://localhost:8080/api/bookings/room/${roomId}`, {
+    const { roomId, bookingRequest } = action.payload;
+    const response = yield call(fetch, `https://royalhorizonhotel-backend-s5k2dwd5ma-uc.a.run.app/api/bookings/room/${roomId}`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(bookingRequest)
     });
 
+    const responseBody = yield response.text();
+
     if (response.ok) {
-      const confirmationCode = yield response.text();
-      yield put(saveBookingSuccess(confirmationCode));
+      yield put(saveBookingSuccess(responseBody));
+      yield delay(3000);
+      yield put(clearError());
     } else {
-      yield put(saveBookingFailure());
+      yield put(saveBookingFailure(responseBody));
+      yield delay(3000);
+      yield put(clearError());
     }
   } catch (error) {
     console.error('Error saving booking:', error);
@@ -53,12 +58,20 @@ function* workSaveBooking(action) {
 
 function* workFetchBookingByConfirmationCode(action) {
   try {
-    const response = yield call(fetch, `http://localhost:8080/api/bookings/${action.payload}`);
+    const { confirmationCode } = action.payload;
+
+    const response = yield call(fetch, `https://royalhorizonhotel-backend-s5k2dwd5ma-uc.a.run.app/api/bookings/${confirmationCode}`);
+
+    const responseBody = yield response.text();
+
     if (response.ok) {
-      const booking = yield response.json();
-      yield put(fetchBookingByConfirmationCodeSuccess(booking));
+      yield put(fetchBookingByConfirmationCodeSuccess(JSON.parse(responseBody)));
+      yield delay(3000);
+      yield put(clearError());
     } else {
-      yield put(fetchBookingByConfirmationCodeFailure());
+      yield put(fetchBookingByConfirmationCodeFailure(responseBody));
+      yield delay(3000);
+      yield put(clearError());
     }
   } catch (error) {
     console.error('Error fetching booking by confirmation code:', error);
@@ -69,7 +82,7 @@ function* workFetchBookingByConfirmationCode(action) {
 function* workFetchBookingsByUserId(action) {
   try {
     const { id } = action.payload;
-    const response = yield call(fetch, `http://localhost:8080/api/bookings/user/${id}`);
+    const response = yield call(fetch, `https://royalhorizonhotel-backend-s5k2dwd5ma-uc.a.run.app/api/bookings/user/${id}`);
     if (response.ok) {
       const bookings = yield response.json();
       yield put(fetchBookingsByUserIdSuccess(bookings));
@@ -84,18 +97,21 @@ function* workFetchBookingsByUserId(action) {
 
 function* workCancelBooking(action) {
   try {
-    const response = yield call(fetch, `http://localhost:8080/api/bookings/${action.payload}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${action.payload.token}`
-      }
+    const { bookingId } = action.payload;
+
+    const response = yield call(fetch, `https://royalhorizonhotel-backend-s5k2dwd5ma-uc.a.run.app/api/bookings/${bookingId}`, {
+      method: 'DELETE'
     });
 
     if (response.ok) {
       const cancelledBooking = yield response.json();
       yield put(cancelBookingSuccess(cancelledBooking));
+      yield delay(3000);
+      yield put(clearError());
     } else {
       yield put(cancelBookingFailure());
+      yield delay(3000);
+      yield put(clearError());
     }
   } catch (error) {
     console.error('Error canceling booking:', error);

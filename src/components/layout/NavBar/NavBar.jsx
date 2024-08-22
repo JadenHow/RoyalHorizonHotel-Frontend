@@ -11,7 +11,6 @@ const NavBar = () => {
   };
 
   const isLoggedIn = localStorage.getItem('token');
-  const userRole = localStorage.getItem('userRole');
 
   return (
     <Navbar bg="light" expand="lg" className="px-5 shadow mt-5 sticky-top">
@@ -25,7 +24,7 @@ const NavBar = () => {
             <Nav.Link as={NavLink} to="/browse-all-rooms">
               Browse all rooms
             </Nav.Link>
-            {isLoggedIn && userRole === 'ROLE_ADMIN' && (
+            {isLoggedIn && (
               <Nav.Link as={NavLink} to="/admin">
                 Admin
               </Nav.Link>

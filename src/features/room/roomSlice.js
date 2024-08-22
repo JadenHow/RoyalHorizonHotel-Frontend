@@ -75,11 +75,9 @@ export const roomSlice = createSlice({
     },
     fetchRoomByIdSuccess: (state, action) => {
       state.currentRoom = action.payload;
-      state.error = false;
       state.isLoading = false;
     },
-    fetchRoomByIdFailure: (state, action) => {
-      state.error = action.payload;
+    fetchRoomByIdFailure: (state) => {
       state.isLoading = false;
     },
     fetchAvailableRoomsRequest: (state) => {

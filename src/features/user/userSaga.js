@@ -10,7 +10,7 @@ import {
 
 function* workFetchUsers(action) {
   try {
-    const response = yield call(fetch, 'http://localhost:8080/api/users', {
+    const response = yield call(fetch, 'https://royalhorizonhotel-backend-s5k2dwd5ma-uc.a.run.app/api/users', {
       headers: {
         Authorization: `Bearer ${action.payload.token}`
       }
@@ -29,12 +29,9 @@ function* workFetchUsers(action) {
 
 function* workFetchUserById(action) {
   try {
-    const { id, token } = action.payload;
-    const response = yield call(fetch, `http://localhost:8080/api/users/email/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const { id } = action.payload;
+
+    const response = yield call(fetch, `https://royalhorizonhotel-backend-s5k2dwd5ma-uc.a.run.app/api/users/email/${id}`);
     if (response.ok) {
       const user = yield response.json();
       yield put(fetchUserByIdSuccess(user));
@@ -49,13 +46,10 @@ function* workFetchUserById(action) {
 
 function* workDeleteUser(action) {
   try {
-    const { id, token } = action.payload;
+    const { id } = action.payload;
 
-    const response = yield call(fetch, `http://localhost:8080/api/users/${id}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
+    const response = yield call(fetch, `https://royalhorizonhotel-backend-s5k2dwd5ma-uc.a.run.app/api/users/${id}`, {
+      method: 'DELETE'
     });
     if (response.ok) {
       const deletedUser = yield response.json();
